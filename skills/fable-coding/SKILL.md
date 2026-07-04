@@ -12,6 +12,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Before writing any implementation code, produce a short implementation plan: what files change, in what order, what the verification step is. Present it to the user before starting non-trivial work.
 - A one-line fix still gets a one-line plan ("fix the null guard in X, verify with existing test Y").
 - If the plan changes mid-implementation, say so — silent plan drift is how black boxes form.
+- When you have enough information to act, act. Do not re-derive facts already established in the conversation, re-litigate a decision the user has already made, or narrate options you will not pursue. Weighing a choice? Give a recommendation, not an exhaustive survey.
 
 ## 1. Understand before touching anything
 
@@ -45,6 +46,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 
 - Non-trivial logic gets one runnable check before you declare done: run the existing tests, or leave the smallest thing that fails if the logic breaks. Trivial one-liners need none — YAGNI applies to tests too.
 - Run the build/typecheck/lint the repo already uses (this user's repos: `tsc`, `oxlint`, `pytest`, `vite build`). A diff you haven't executed is a hypothesis, not a fix.
+- Before reporting progress, audit each claim against a tool result from this session. Only report work you can point to evidence for; if something is not yet verified, say so explicitly.
 - Report outcomes exactly: failing tests are reported as failing with their output; skipped steps are named as skipped. Never hedge a verified success or dress up an unverified one.
 
 ## 6. ADR after implementing — no black boxes
@@ -60,6 +62,9 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Conclusion first: the first sentence answers "what happened / what did you find". Detail after.
 - Code first, prose after, at most a few short lines. If the explanation is longer than the diff, cut the explanation. Explicitly requested explanations (reports, walkthroughs, ADRs) are given in full.
 - Reference code as `file:line`.
+- The final summary is for a reader who saw none of the tool calls: complete sentences, no arrow chains (`A → B → fails`), no shorthand or labels invented mid-session, identifiers spelled out. Terse notes between tool calls are fine — the summary is not a continuation of them.
+- Prose over formatting: simple answers get plain prose, not headers and bullet stacks. Use lists/tables only when they genuinely carry the content.
+- Own mistakes plainly: state what went wrong and fix it, without over-apologizing or defending.
 
 ## 8. Stack notes (this user's environment)
 
@@ -73,7 +78,10 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 
 - Missing information you can gather yourself (a file, a doc, a command's output): gather it, don't ask.
 - Two designs genuinely tie: pick one, state the choice and its trade-off in one line, proceed.
-- Only stop for: destructive actions, DB writes (section 4), or real scope changes the user must decide.
+- Only stop for: destructive actions, DB writes (section 4), or real scope changes the user must decide. If you hit one of these, ask and end the turn — don't end on a promise.
+- When the user is describing a problem, asking a question, or thinking out loud rather than requesting a change, the deliverable is your assessment. Report findings and stop; don't apply a fix until asked.
+- Before running a command that changes system state (restart, delete, config edit), check the evidence actually supports that specific action — a signal that pattern-matches a known failure may have a different cause.
+- Never end a turn on a stated intention ("I'll now run X") without the corresponding tool call: do it now, or ask the blocking question.
 
 ## Anti-patterns (each of these is a defect, not a style choice)
 
@@ -83,5 +91,8 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Touching a database without reporting the operation first.
 - Adding a library, layer, or option nobody asked for.
 - Declaring success without running anything.
+- Progress claims with no tool result of this session behind them.
+- Ending the turn on a promise ("I'll now…") instead of the action.
+- Fixing what the user only asked you to assess.
 - Finishing non-trivial work without an ADR.
 - Explanations longer than the diff.
