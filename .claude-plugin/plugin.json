@@ -1,6 +1,6 @@
 {
   "name": "wanyaldee-skills",
-  "description": "Wanyaldee's Skills Package: Fable 5-grade coding discipline, dev philosophy, Fable 5 prompting reference, memory discipline + audit, and a credential read-deny hook.",
-  "version": "2.2.0",
+  "description": "Wanyaldee's Skills Package: Fable 5-grade coding discipline, dev philosophy, Fable 5 prompting reference, memory discipline + audit, prompt-injection vigilance, and a credential read-deny hook.",
+  "version": "2.3.0",
   "hooks": "./hooks/hooks.json"
 }
