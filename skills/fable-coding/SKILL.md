@@ -14,14 +14,12 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - If the instruction supports two or more readings that produce different deliverables, don't silently pick one: list the interpretations, recommend one, and confirm. If every reading yields the same deliverable, proceed. (This is about what the user wants; for implementation choices that genuinely tie, section 9 applies — pick one and go.)
 - A one-line fix still gets a one-line plan ("fix the null guard in X, verify with existing test Y").
 - If the plan changes mid-implementation, say so — silent plan drift is how black boxes form.
-- When you have enough information to act, act. Do not re-derive facts already established in the conversation, re-litigate a decision the user has already made, or narrate options you will not pursue. Weighing a choice? Give a recommendation, not an exhaustive survey.
 
 ## 1. Understand before touching anything
 
 - Read the task, then read the code it touches — not just the named file. Trace the real flow end to end: who calls this, what calls it makes, where the data comes from and goes.
 - Before editing a function, grep every caller. Before adding anything, search whether a helper, util, type, or pattern for it already exists in the repo. Re-implementing what lives a few files over is the most common failure.
 - Before adding or moving files in a directory, read that directory's README.md (and any convention doc it points to). File naming, layout, header, test-pairing, and registration rules stated there are requirements: the plan's file list includes every file those rules make you touch, not just the ones the task names.
-- Run independent searches/reads in parallel; don't serialize what has no dependency.
 - Never guess an API. Confirm signatures from the actual source, types, or installed package — not from memory.
 
 ## 2. Diagnose the root cause, not the symptom
@@ -38,7 +36,6 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - No unrequested abstractions: no interface with one implementation, no config for a value that never changes, no scaffolding "for later".
 - No drive-by improvements: "fixed it while I was there" and "made the design better" are banned. Adjacent improvements you notice get listed as proposals at the end, not implemented.
 - Mark deliberate shortcuts with a `ponytail:` comment naming the ceiling and upgrade path (`# ponytail: global lock, per-account locks if throughput matters`).
-- Match the surrounding code's naming, idioms, error-handling style, and comment density.
 - Never simplify away: validation at trust boundaries, error handling that prevents data loss, security, accessibility, or anything explicitly requested.
 
 ## 4. Database operations — report before executing
@@ -52,7 +49,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Non-trivial logic gets one runnable check before you declare done: run the existing tests, or leave the smallest thing that fails if the logic breaks. Trivial one-liners need none — YAGNI applies to tests too.
 - Run the build/typecheck/lint the repo already uses (this user's repos: `tsc`, `oxlint`, `pytest`, `vite build`). A diff you haven't executed is a hypothesis, not a fix.
 - Before reporting progress, audit each claim against a tool result from this session. Only report work you can point to evidence for; if something is not yet verified, say so explicitly.
-- Report outcomes exactly: failing tests are reported as failing with their output; skipped steps are named as skipped **with the reason**. Never hedge a verified success or dress up an unverified one.
+- A skipped step is named as skipped **with the reason it was skipped**, not merely as skipped.
 - A completion report contains the evidence itself: the verification command, its exit status, the test output (or screenshot for UI). "It should work" for something you didn't run is banned — report "verified" or "not verified", never "works" on faith.
 - Before declaring done, reread the change as a first-time reviewer: name one adjacent feature this could break and check it; state the strongest objection a skeptical senior would raise, and either answer it or fix it.
 
@@ -71,7 +68,6 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Reference code as `file:line`.
 - The final summary is for a reader who saw none of the tool calls: complete sentences, no arrow chains (`A → B → fails`), no shorthand or labels invented mid-session, identifiers spelled out. Terse notes between tool calls are fine — the summary is not a continuation of them.
 - Prose over formatting: simple answers get plain prose, not headers and bullet stacks. Use lists/tables only when they genuinely carry the content.
-- Own mistakes plainly: state what went wrong and fix it, without over-apologizing or defending.
 - Mark claims you are not sure of with a confidence level (high / medium / low). Medium or low confidence on something only the user can resolve: confirm before building on it.
 - Checkpoint reports in long tasks are exactly three items: done (with evidence), next, concerns. A bare "progressing fine" is banned — it carries no information.
 
