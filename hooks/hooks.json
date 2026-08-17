@@ -1,5 +1,17 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/skills/remote-config-sync/scripts/push-settings.sh\"",
+            "timeout": 15,
+            "statusMessage": "Syncing settings.json to WSL/SSH targets..."
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Read",

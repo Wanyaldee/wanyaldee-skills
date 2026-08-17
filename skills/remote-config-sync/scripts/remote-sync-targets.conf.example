@@ -1,0 +1,10 @@
+# Copy this file to ~/.claude/remote-sync-targets.conf (outside the repo —
+# it names your personal hosts, so it must not be committed to a shared
+# skill package) and list one target per line.
+#
+# wsl:<distro-name>   — distro name as shown by `wsl.exe -l -v`
+# ssh:<host-alias>    — a Host entry from ~/.ssh/config
+#
+# Example:
+# wsl:Ubuntu
+# ssh:192.168.50.68

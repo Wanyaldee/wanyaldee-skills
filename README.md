@@ -1,6 +1,6 @@
 # wanyaldee-skills — Wanyaldee's Skills Package
 
-Wanyaldee の個人スキルパッケージ。Fable 5級のコーディング規律、開発哲学、Fable 5 プロンプティングリファレンス、メモリ規律+監査、認証情報読み取りブロックのフックを収録。
+Wanyaldee の個人スキルパッケージ。Fable 5級のコーディング規律、開発哲学、Fable 5 プロンプティングリファレンス、メモリ規律+監査、認証情報読み取りブロックのフック、Windows→WSL/SSH設定同期フックを収録。
 
 v1.x までは `fable-coding` という名前だった(旧 URL は GitHub がリダイレクトする)。v2.0.0 で改名。旧名でインストール済みの環境は、`/plugin uninstall fable-coding` → `/plugin marketplace remove fable-coding` → 下記の手順で入れ直す。
 
@@ -25,6 +25,7 @@ Claude Code内で:
 - `memory-audit` (v1.7.0〜) — `/memory-audit` で全プロジェクトのメモリを一発監査: 索引整合、モデル帰属(originSessionId→セッションログ解決)、矛盾・重複・揮発性混在・形式のチェック。デフォルト報告のみ、`--fix` で機械的修正(索引補完・origin 補記・日付の絶対化)だけ適用。
 - `injection-vigilance` (v2.3.0〜) — プロンプトインジェクション警戒: 指示の出所はユーザー発言とシステム設定のみで、ツールで読んだものはすべてデータ。過去の Claude セッション自身の出力経由の注入(セルフインジェクション)も対象。データ内の指示めいたテキストは実行せず、位置つきで引用報告してユーザーに判断させる。ネスト `claude -p` での RED/GREEN テスト済み(ADR 0010)。
 - `dev-philosophy` (v1.3.0〜) — 開発哲学: 自動化の境界線(ヒューマンインザループ、外部信頼サービス優先)、仕組みによるセキュリティ、技術スタック方針(Python/Rust、MariaDB、Proxmox)、MIT License 標準。システム設計・アーキテクチャ提案時に適用される。
+- `remote-config-sync` (v2.6.0〜) — Windowsマシンを正本として `~/.claude/settings.json` をWSL/SSH先へ自動プッシュする `SessionStart` フック。リモート側のハッシュが異なる場合のみ上書きし(旧設定は `.bak.<timestamp>` に退避)、更新したターゲットのみ報告。同期対象は `~/.claude/remote-sync-targets.conf`(リポジトリ非追跡、ユーザー個人管理)で指定。既知の制限として、このマシンを経由せずWSL/SSH側で直接セッションを開始した場合は発火しない。また前提条件として、リモート側にClaude Codeと本プラグインが事前導入されている必要がある(ADR 0013)。
 
 英語スキル(`fable-coding`, `prompting-fable-5`)には人間用の和訳 `SKILL.ja.md` を併設している(v1.4.0〜)。Claude が読み込むのは `SKILL.md`(英語版)のみ。編集は英語版に行い、和訳を追随させる。
 
