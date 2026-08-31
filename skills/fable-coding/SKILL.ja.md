@@ -55,7 +55,7 @@
 ## 6. 実装後に ADR — ブラックボックスを作らない
 
 - 非自明な作業(新機能、アーキテクチャ選択、依存追加、スキーマ変更、将来の読者が「なぜこうなっている?」と聞くもの)の完了後、リポジトリの `docs/` に短い ADR を書く(なければ `docs/adr/NNNN-title.md` を作成、あれば既存フォーマットに従う)。
-- ADR フォーマット: Context(なぜこれが持ち上がったか)、Decision(何をどういう形でやったか)、Alternatives rejected(各1行、理由付き)、Consequences(何が楽になり何が難しくなるか、残した `ponytail:` ショートカットを含む既知の天井)。
+- **必須サブスキル:** 節構成(Context, Decision, Reason, Alternatives rejected, Consequences, Verification)は wanyaldee-skills:writing-adrs に従う —— Reason には実際のコードそのものを載せること、説明だけで済ませない。
 - テスト: このセッションにいなかった人が、コード + ADR だけで結果を理解し安全に変更できるか?できないなら ADR は不完全。
 - 自明な修正(typo、明白な1行)に ADR は不要。
 

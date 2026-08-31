@@ -56,7 +56,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 ## 6. ADR after implementing — no black boxes
 
 - After completing non-trivial work (new feature, architectural choice, dependency added, schema change, anything a future reader would ask "why is it like this?"), write a short ADR into the repo's `docs/` directory (create `docs/adr/NNNN-title.md` if none exists; follow the existing format if one does).
-- ADR format: Context (why this came up), Decision (what was done and the shape of it), Alternatives rejected (one line each, with why), Consequences (what this makes easier/harder, known ceilings including any `ponytail:` shortcuts left behind).
+- **REQUIRED SUB-SKILL:** Use wanyaldee-skills:writing-adrs for the section format (Context, Decision, Reason, Alternatives rejected, Consequences, Verification) — Reason must include the actual code, not a description of it.
 - The test: could someone who wasn't in this session understand and safely modify the result using only the code + ADR? If not, the ADR is incomplete.
 - Trivial fixes (typo, obvious one-liner) need no ADR.
 
