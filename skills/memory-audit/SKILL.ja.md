@@ -2,7 +2,7 @@
 
 > 人間用の参考訳。Claude が読み込むのは [SKILL.md](SKILL.md)(英語版)のみ。編集は英語版が先、和訳が追随する。
 >
-> description 訳: 全永続オートメモリディレクトリ(~/.claude/projects/*/memory/)の一発監査 — 索引漏れ、リポジトリ重複ダンプ、陳腐化・矛盾した事実、形式違反、出所喪失。「/memory-audit」「メモリ監査」「audit memories」等で使用。デフォルトは報告のみ、--fix は機械的修正のみ適用。
+> description 訳: ユーザーが「/memory-audit」「audit memories」「メモリ監査」「check my memories」と言ったとき、またはメモリ内で何が陳腐化・誤っているかを尋ねたときに使用。デフォルトは報告のみ。
 
 全プロジェクトのメモリディレクトリを走査し、各ファイルを [[memory-discipline]] に照らして採点し、重大度順に報告する。`--fix` 付きで呼ばれない限り何も変更しない。`--fix` 付きでも末尾に列挙した機械的修正のみ適用する。
 

@@ -1,6 +1,6 @@
 ---
 name: dev-philosophy
-description: Wanyaldee's development philosophy — apply when designing or proposing any system, architecture, automation, UI/UX, or new project, and when choosing a language. Covers human-centered foolproof design (usable by anyone, safe against misuse), automation boundaries (human-in-the-loop, lean on trusted external services like GAS/Discord), security guardrails enforced by mechanism not prompts, per-domain language choice (Rust for DB, Python for AI/bots, C/C++ for embedded, TypeScript for web), spec/ADR content preserved as code comments, MariaDB/Proxmox stack, and MIT licensing for new projects.
+description: Use when designing or proposing a system, architecture, or automation; starting a new project; choosing a language or license; or proposing a tech stack.
 ---
 
 # 開発哲学・実装ガイドライン (Wanyaldee)

@@ -1,6 +1,6 @@
 ---
 name: memory-audit
-description: One-shot audit of all persistent auto-memory directories (~/.claude/projects/*/memory/) — index gaps, repo-duplicating dumps, stale or contradicted facts, format violations, lost provenance. Use when the user says "/memory-audit", "audit memories", "メモリ監査", "check my memories", or asks what's stale or wrong in memory. Report-only by default; --fix applies mechanical repairs only.
+description: Use when the user says "/memory-audit", "audit memories", "メモリ監査", "check my memories", or asks what's stale or wrong in memory. Report-only by default.
 ---
 
 # Memory audit

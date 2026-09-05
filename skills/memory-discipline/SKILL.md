@@ -10,59 +10,45 @@ because its violation was observed in a real memory audit (2026-07-04): spec
 dumps that duplicated the repo, files missing from the index, and a memory
 that became false the same day it was written.
 
-## What goes in (and what doesn't)
+## What goes in
 
-- One fact per file. A file that mixes durable setup facts with volatile
-  status will rot partially; split them. Volatile state (progress, current
-  decisions under review) gets its own file that is *expected* to be
-  rewritten.
-- Never save what the repo, git history, CLAUDE.md, or chat history already
-  records. A spec, architecture, or plan that lives in `docs/` gets a pointer
-  and the non-obvious delta, not a copy.
-- Do save: user corrections and confirmed approaches (with why), project
-  facts not derivable from the code, pointers to external resources, and
-  open questions **with their owner** ("pending: Okada-san confirming X") —
-  an unresolved point recorded with who resolves it is a first-class fact.
+- Mixing durable and volatile facts in one file rots it partially — split
+  them; volatile state (progress, decisions under review) gets its own file,
+  one expected to be rewritten.
+- Open questions are worth saving, but only **with an owner** — "pending:
+  Okada-san confirming X." An unresolved point tied to who resolves it is a
+  first-class fact.
+- A spec, architecture, or plan that already lives in `docs/` gets a pointer
+  and the non-obvious delta, never a copy. Copying it is the spec-dump
+  failure above.
 
 ## Format
 
 ```markdown
 ---
-name: <kebab-case-slug>
-description: <one line — this is what recall matching runs on>
 metadata:
-  type: user | feedback | project | reference
   origin: <model-id>, <YYYY-MM-DD>
 ---
-
-<the fact>
-
-**Why:** <why it matters / where it came from>
-**How to apply:** <what to do differently>
 ```
 
-- `origin` carries the model and an absolute date directly: session IDs rot
-  when transcripts are purged; frontmatter doesn't.
-- Absolute dates only, everywhere. "Last week" is meaningless in three weeks.
-- Link related memories with `[[name]]`. A link to a not-yet-written memory
-  marks something worth writing, not an error.
-- Why / How to apply are required for `feedback` and `project` types.
+One field beyond the harness's own template: `origin`. Session IDs rot once
+transcripts are purged; frontmatter doesn't — record the model and an
+absolute date directly. Use absolute dates everywhere, not only for project
+memories.
 
 ## The index
 
-- `MEMORY.md` gets its one-line entry (`- [Title](file.md) — hook`) **in the
-  same turn** the memory file is written. An unindexed memory is never
-  recalled — it might as well not exist.
-- One line per memory, never content. The hook after the dash is what earns
-  the file a read: write it as the reason to open the file.
+`MEMORY.md`'s entry is written **in the same turn** as the memory file, never
+queued for later — an unindexed memory is never recalled. Write the hook
+after the dash as the reason to open the file, not a content teaser.
 
 ## Maintenance — the same-session rule
 
-- A memory contradicted by what you just observed gets updated or deleted
-  **in that session, the turn you notice** — not flagged for later. Stale
-  memory is worse than no memory: it is trusted and wrong.
-- Update the existing file rather than writing a near-duplicate; append a
-  dated correction if the history matters, rewrite if it doesn't.
-- Wrong memory → delete the file and its index line. Superseded plan →
-  delete or shrink to a pointer at the superseding document.
-- Before saving, check the index for an existing file that covers the topic.
+A memory contradicted by what you just observed gets fixed **in that
+session, the turn you notice** — not flagged for later. Stale memory is
+worse than no memory: it is trusted and wrong.
+
+Append a dated correction when history matters, rewrite when it doesn't. A
+superseded plan shrinks to a pointer at the document that replaced it.
+
+Before saving, check the index for a file that already covers the topic.

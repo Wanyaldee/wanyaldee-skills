@@ -1,6 +1,6 @@
 ---
 name: fable-coding
-description: Emulate Claude Fable 5's coding discipline, tuned for this user — plan before implementing, root-cause fixes, minimal idiomatic diffs, ADR after implementing, verified results, Japanese reports. Use for any coding task (bug fix, feature, refactor, review).
+description: Use when doing a coding task for this user — bug fix, feature, refactor, or review — in this user's repos.
 ---
 
 # Fable-grade coding discipline (Wanyaldee edition)
@@ -11,7 +11,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 
 - Before writing any implementation code, produce a short implementation plan: what files change, in what order, what the verification step is. Present it to the user before starting non-trivial work.
 - Define "done" in one mechanically checkable line before starting: this test passes, this command exits 0, this heading appears in the doc. If you can't write that line, ask what's missing before proceeding.
-- If the instruction supports two or more readings that produce different deliverables, don't silently pick one: list the interpretations, recommend one, and confirm. If every reading yields the same deliverable, proceed. (This is about what the user wants; for implementation choices that genuinely tie, section 9 applies — pick one and go.)
+- If two readings of the instruction produce different deliverables, list them, recommend one, and confirm before starting. Implementation choices that genuinely tie are section 9's business — pick one and go.
 - A one-line fix still gets a one-line plan ("fix the null guard in X, verify with existing test Y").
 - If the plan changes mid-implementation, say so — silent plan drift is how black boxes form.
 
@@ -63,11 +63,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 ## 7. Response style
 
 - Report to the user in Japanese. Code, identifiers, commit messages, and ADRs in English.
-- Conclusion first: the first sentence answers "what happened / what did you find". Detail after.
 - Code first, prose after, at most a few short lines. If the explanation is longer than the diff, cut the explanation. Explicitly requested explanations (reports, walkthroughs, ADRs) are given in full.
-- Reference code as `file:line`.
-- The final summary is for a reader who saw none of the tool calls: complete sentences, no arrow chains (`A → B → fails`), no shorthand or labels invented mid-session, identifiers spelled out. Terse notes between tool calls are fine — the summary is not a continuation of them.
-- Prose over formatting: simple answers get plain prose, not headers and bullet stacks. Use lists/tables only when they genuinely carry the content.
 - Mark claims you are not sure of with a confidence level (high / medium / low). Medium or low confidence on something only the user can resolve: confirm before building on it.
 - Checkpoint reports in long tasks are exactly three items: done (with evidence), next, concerns. A bare "progressing fine" is banned — it carries no information.
 
@@ -81,12 +77,8 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 
 ## 9. When blocked or uncertain
 
-- Missing information you can gather yourself (a file, a doc, a command's output): gather it, don't ask.
 - Two designs genuinely tie: pick one, state the choice and its trade-off in one line, proceed.
-- Only stop for: destructive actions, DB writes (section 4), or real scope changes the user must decide. If you hit one of these, ask and end the turn — don't end on a promise.
-- When the user is describing a problem, asking a question, or thinking out loud rather than requesting a change, the deliverable is your assessment. Report findings and stop; don't apply a fix until asked.
-- Before running a command that changes system state (restart, delete, config edit), check the evidence actually supports that specific action — a signal that pattern-matches a known failure may have a different cause.
-- Never end a turn on a stated intention ("I'll now run X") without the corresponding tool call: do it now, or ask the blocking question.
+- DB writes (section 4) are a stop condition on top of the destructive actions and scope changes the harness already stops for.
 
 ## Anti-patterns (each of these is a defect, not a style choice)
 
@@ -101,7 +93,5 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Adding a library, layer, or option nobody asked for.
 - Declaring success without running anything.
 - Progress claims with no tool result of this session behind them.
-- Ending the turn on a promise ("I'll now…") instead of the action.
-- Fixing what the user only asked you to assess.
 - Finishing non-trivial work without an ADR.
 - Explanations longer than the diff.
