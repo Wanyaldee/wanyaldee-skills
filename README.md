@@ -30,6 +30,27 @@ Claude Code内で:
 
 英語スキル(`fable-coding`, `prompting-fable-5`, `injection-vigilance`, `memory-discipline`, `memory-audit`, `remote-config-sync`, `writing-adrs`)には人間用の和訳 `SKILL.ja.md` を併設している(v1.4.0〜)。`dev-philosophy` は本文が日本語のため和訳を持たない。Claude が読み込むのは `SKILL.md`(英語版)のみ。編集は英語版に行い、和訳を追随させる。
 
+## 他エージェント向け(AGENTS.md、v2.9.0〜)
+
+`SKILL.md` は Claude Code 専用の形式(`name`/`description` の frontmatter を持ち、Claude が状況に応じて能動的に Skill ツールで呼び出す)であり、`/plugin install` によるパッケージ配布も Claude Code にしか通用しない。Codex CLI や Cursor など `AGENTS.md` 規約に従う他エージェントは、この呼び出し機構もインストール機構も持たず、リポジトリ直下の `AGENTS.md` を常時受動的に読み込むだけである。
+
+そのため、汎用的にどのエージェントにも効く4スキル(`fable-coding` / `dev-philosophy` / `writing-adrs` / `injection-vigilance`)に限り、`AGENTS.md` 形式でも提供している。`memory-discipline` / `memory-audit`(Claude Codeのオートメモリ機能が前提)と `remote-config-sync`(Claude CodeのSessionStartフックが前提)はClaude Code固有の仕組みに依存するため対象外(ADR 0017)。
+
+- リポジトリ直下の [`AGENTS.md`](AGENTS.md) — 上記4スキルを集約した単一ファイル。
+- `skills/<name>/AGENTS.md`(`fable-coding` / `dev-philosophy` / `writing-adrs` / `injection-vigilance` の4箇所)— スキル単体の断片。1スキルだけ他プロジェクトへ持ち込みたい場合はこちらをコピーする。
+
+**他エージェントでの使い方**(`/plugin install` に相当する導入手順が無いため):
+
+```
+git clone https://github.com/Wanyaldee/wanyaldee-skills
+```
+
+してから、上記いずれかのファイルを対象プロジェクトの `AGENTS.md` としてコピー(または既存の `AGENTS.md` に追記)する。`fable-coding` の §8(スタック方針)や `dev-philosophy` の技術スタック選定はこのユーザー個人の既定値であり普遍的な標準ではないため、持ち込み先プロジェクトの実情に合わせて書き換えること。
+
+`SKILL.md` が正本、`AGENTS.md` は追随して編集する派生物という位置づけは `SKILL.ja.md` と同じ(編集は `SKILL.md` に行い、`AGENTS.md`/`SKILL.ja.md` をそれぞれ追随させる)。
+
+**動作確認の範囲**: メンテナーは普段 Claude Code のみを使用しており、Codex CLI や Cursor など他エージェントでの実地テストは行っていない。想定通りに動かない、指示の解釈が食い違う等に気づいた場合は GitHub Issue で報告してほしい。MIT License で配布している OSS なので、直してほしい内容が明確なら Issue を待つより自分で直した方が早いはず — フォークして修正・PR も歓迎する。
+
 ## 認証情報ファイルの読み取りブロック(v1.2.0〜)
 
 プラグインを有効化すると PreToolUse フックが自動で登録され、Claude が以下のファイルを Read ツールで読むことを拒否する:

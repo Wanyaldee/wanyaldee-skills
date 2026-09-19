@@ -1,6 +1,6 @@
 {
   "name": "wanyaldee-skills",
-  "description": "Wanyaldee's Skills Package: Fable 5-grade coding discipline, dev philosophy, Fable 5 prompting reference, memory discipline + audit, prompt-injection vigilance, ADR writing guidance, a credential read-deny hook, and a Windows-to-WSL/SSH settings.json sync hook.",
-  "version": "2.8.0",
+  "description": "Wanyaldee's Skills Package: Fable 5-grade coding discipline, dev philosophy, Fable 5 prompting reference, memory discipline + audit, prompt-injection vigilance, ADR writing guidance, agent-agnostic AGENTS.md fragments, a credential read-deny hook, and a Windows-to-WSL/SSH settings.json sync hook.",
+  "version": "2.9.0",
   "hooks": "./hooks/hooks.json"
 }
