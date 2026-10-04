@@ -8,6 +8,11 @@
       "name": "wanyaldee-skills",
       "source": "./",
       "description": "Wanyaldee's Skills Package: coding discipline, dev philosophy, Fable 5 prompting, memory discipline + audit."
+    },
+    {
+      "name": "context-handoff",
+      "source": "./mods/context-handoff",
+      "description": "Mod: always-on context/rate-limit usage in the status line, plus an automatic commit + handoff note when a limit nears, and a resume prompt on the next launch in the same repo."
     }
   ]
 }

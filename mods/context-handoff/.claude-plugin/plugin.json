@@ -1,0 +1,8 @@
+{
+  "name": "context-handoff",
+  "version": "0.1.0",
+  "description": "Shows context/rate-limit usage in the status line and checkpoints work for the next session when a limit gets close",
+  "author": { "name": "Wanyaldee" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
