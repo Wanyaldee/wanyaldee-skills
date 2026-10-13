@@ -214,8 +214,14 @@ Operations addition, same tiers:
 
 Verified-by: Claude Opus 5.5 (AI agent), 2026-10-13 (diffs and subagent tests above)
 
-**Not verified**: no human has read the new section or checked that its
-wording matches what the user meant. That needs the user's sign-off. The
+Checks a person made:
+
+- Read the new rules and this ADR against the original request; they
+  broadly match the intent ("概ね私の意図に沿っている").
+  Verified-by: Wanyaldee (human), 2026-10-13
+
+**Not verified**: the user's sign-off is "broadly", not item-by-item;
+no specific wording was confirmed or flagged. The
 tests were single-rep and without pressure, so a skill under deadline
 pressure ("keep it short") was tested only through the scenario's own
 wording.

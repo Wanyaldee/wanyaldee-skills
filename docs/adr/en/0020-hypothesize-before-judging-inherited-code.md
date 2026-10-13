@@ -130,5 +130,11 @@ Subagent tests (single-shot Sonnet, one rep each, lighter tier as in ADR
 
 Verified-by: Claude Opus 5.5 (AI agent), 2026-10-13 (diff and subagent tests above)
 
-**Not verified**: the green test ran once, without pressure. No human has
-reviewed the wording against what the user meant.
+Checks a person made:
+
+- Read the new rules and this ADR against the original request; they
+  broadly match the intent ("概ね私の意図に沿っている").
+  Verified-by: Wanyaldee (human), 2026-10-13
+
+**Not verified**: the green test ran once, without pressure. The user's
+sign-off is "broadly", not item-by-item.
