@@ -251,6 +251,82 @@ anything shipped as a deliberate shortcut and left for later.
 What was actually run to confirm this works — and what was *not* verified.
 "Not run end-to-end because X" is a valid, useful line, not a confession.
 
+Each entry has one of two shapes:
+
+**Tool-run checks (compiler, build, tests, linter, type checker): the
+command and its full output.** Paste the log in a fenced block exactly as
+printed — every warning, not just the last `Finished`/`ok` line. A summary
+like "`cargo build`: passed, 1 warning" is a claim; the log is the evidence,
+and the trimmed-away warning is often what a later reader is looking for. A
+long log goes inside a `<details>` block, still complete.
+
+````markdown
+`cargo build --release`:
+
+```
+   Compiling app v0.3.1 (/work/app/src-tauri)
+warning: unused variable: `theme_prev`
+  --> src/settings.rs:42:9
+...
+    Finished `release` profile [optimized] target(s) in 41.87s
+```
+````
+
+(`...` here only shortens this example; in an ADR, paste every line.)
+
+**Checks a person makes (UI, UX, behavior on a real device): what was
+checked, and a signature.**
+
+```markdown
+- Dark-mode toggle on the settings screen; sidebar contrast readable.
+  Verified-by: wanyaldee (human), 2026-10-13
+```
+
+The signature names who answers for this check if it turns out wrong. Git
+records who *committed*; only the ADR records who *verified*. When the
+committer and the verifier are the same person on record, the pair gives a
+baseline of trust — both can be forged, but forging them takes deliberate
+effort. An agent signs only checks it ran itself: when a human did the
+check and the agent only heard about it, the human's name goes on the
+`Verified-by:` line, not the agent's. A check nobody did is listed under
+**Not verified**, never left unsigned.
+
+**Operations that change state (database writes and migrations, anything
+run with `sudo`, deploys, service restarts): a record per operation.** These
+are not checks — they are actions someone will need to trace or undo later.
+Each one gets its intent, its target, the full log, and who verified the
+result:
+
+````markdown
+- **Operation:** backfill `last_login_at` for existing users
+  **Intent:** every existing row gets a non-NULL approximate value, so the
+  admin page isn't blank for them
+  **Target:** staging, `appdb`
+  **Run by:** Claude Sonnet 5.5 (AI agent), 2026-10-13
+
+  ```
+  $ mysql -u admin -p appdb -e "UPDATE users SET last_login_at = updated_at WHERE last_login_at IS NULL;"
+  Query OK, 18231 rows affected (2.17 sec)
+  Rows matched: 18231  Changed: 18231  Warnings: 0
+  ```
+
+  Verified-by: wanyaldee (human), 2026-10-13 — `SELECT COUNT(*) FROM users
+  WHERE last_login_at IS NULL` returned 0
+````
+
+Write the intent as the result the operation should produce, so the
+verifier has something to compare against. The verifier checks that
+result — "`Query OK`" or exit 0 only shows the command ran. A command with
+no output is recorded as `(no output, exit 0)`. An operation whose result
+nobody checked is listed under **Not verified**.
+
+**Review by another model is supporting evidence, not verification.** Have
+a second model (or agent) review the change if you like, and record it as
+`Reviewed-by: <model>`, but do not count it as a check of the behavior.
+Models share blind spots, just as two reviewers from the same team share
+assumptions — a second reviewer raises confidence without replacing someone
+looking at what the code actually does. That holds for human reviewers too.
+
 ### Rationalization table
 
 | Excuse | Reality |
@@ -260,6 +336,10 @@ What was actually run to confirm this works — and what was *not* verified.
 | "It's obviously the standard pattern, doesn't need justifying" | If it's standard, say so in one line, then name the one non-obvious choice (a specific timeout, a specific ordering). Ten seconds of work, worth far more than "standard pattern." |
 | "The AI wrote it correctly, I don't need to re-derive why" | Correctness and understanding are different things. Unable to explain it now means unable to safely change it later, and unable to take responsibility for it today. |
 | "This is a small change" | Small and self-explanatory doesn't need an ADR at all (see When to write one). If it earned an ADR, it earned a real Reason section. |
+| "The build passed, the last line is enough" | The lines above `Finished` are where the warnings are. Paste the whole log; the reader decides what matters. |
+| "The user said it looks fine, I'll note that" | Then the user verified it: put their name and the date on a `Verified-by:` line. Prose such as "the user confirmed" doesn't say who is accountable. |
+| "The migration printed `Query OK`, that's the verification" | That shows the statement ran, not that the data is now what the intent says. Someone checks the result, and signs. |
+| "Another model reviewed it, so it's verified" | That's a review, not a check of the behavior. Record it as `Reviewed-by:` and keep the actual check (or its absence) separate. |
 
 ### Quick reference
 
@@ -270,7 +350,7 @@ What was actually run to confirm this works — and what was *not* verified.
 | Reason | Why *this* code — code included, choice-by-choice |
 | Alternatives rejected | What else was considered, and why not, one line each |
 | Consequences | What gets easier/harder; known ceilings |
-| Verification | What was actually run; what wasn't |
+| Verification | Full logs for tool runs; a signature on checks a person made; intent + log + verifier for each DB/sudo/deploy operation; what wasn't verified |
 
 ---
 
