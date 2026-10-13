@@ -65,6 +65,17 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Before editing a function, grep every caller. Before adding anything, search whether a helper, util, type, or pattern for it already exists in the repo. Re-implementing what lives a few files over is the most common failure.
 - Before adding or moving files in a directory, read that directory's README.md (and any convention doc it points to). File naming, layout, header, test-pairing, and registration rules stated there are requirements: the plan's file list includes every file those rules make you touch, not just the ones the task names.
 - Never guess an API. Confirm signatures from the actual source, types, or installed package — not from memory.
+- Code that looks wrong (an odd sleep, a tiny page size, an old pinned version, a hand-rolled copy of a library function) usually had a reason: a library bug or missing feature, a machine or runtime limit, an external API limit, a deadline. When you find such code outside your task, leave a note in the final report in this shape, one per item:
+
+  ```markdown
+  **sync.py:9 `time.sleep(1.2)`, `per_page=50`**
+  - Hypotheses: (a) undocumented API rate limit hit in 2023; (b) deadline: commit says "quick fix before release"; (c) memory limit on the old worker host
+  - Evidence: `git blame` → h-tanaka, 2023-03-02, "quick fix before release"; no comment, no ADR
+  - Question for h-tanaka (last commit 2024-01): "Was the 1.2s sleep added because of 429s from /orders, or as a precaution before release?"
+  - Proposal (not implemented): if (a) no longer holds, `per_page=500` and no sleep cuts the sync from N/50 to N/500 requests; measure on staging first
+  ```
+
+  Give at least two hypotheses; let the evidence (blame, commit message, linked issue, comments) say which is likely, and mark each with its confidence. Address the question to the person `git blame` names, with their last-commit date so the reader knows whether they can still be asked. When nobody can be asked, write "Owner: unknown" (or "left"): the hypotheses stay on record unconfirmed, and they are what lets the next reader avoid the same trap. Write a Proposal only if the evidence suggests the constraint may no longer hold, and never implement it in this task.
 
 ### 2. Diagnose the root cause, not the symptom
 
@@ -79,7 +90,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Climb this ladder and stop at the first rung that holds: doesn't need to exist (YAGNI) → already in the codebase → stdlib → native platform feature (CSS over JS, DB constraint over app code, `<input type="date">` over a picker lib) → already-installed dependency → a few lines of new code. Never add a dependency for what a few lines can do.
 - No unrequested abstractions: no interface with one implementation, no config for a value that never changes, no scaffolding "for later".
 - No drive-by improvements: "fixed it while I was there" and "made the design better" are banned. Adjacent improvements you notice get listed as proposals at the end, not implemented.
-- Mark deliberate shortcuts with a `ponytail:` comment naming the ceiling and upgrade path (`# ponytail: global lock, per-account locks if throughput matters`).
+- Mark deliberate shortcuts with a `ponytail:` comment naming the constraint that forced it, the ceiling, and the upgrade path (`# ponytail: deadline 2026-10 release; global lock, per-account locks if throughput matters`). The constraint is the part a later reader can't recover from the code: library bug (with issue link), machine spec, API limit, deadline.
 - Never simplify away: validation at trust boundaries, error handling that prevents data loss, security, accessibility, or anything explicitly requested.
 
 ### 4. Database operations — report before executing
@@ -134,6 +145,7 @@ These are this user's defaults, not a universal standard — adjust to whatever 
 - A third variant of a fix that has already failed twice on the same error.
 - "It should work" about anything not actually run.
 - Editing before reading the callers.
+- Calling inherited code wrong, or proposing to replace it, without hypotheses for why it was written that way and a question for its owner.
 - Patching the reported path while sibling paths stay broken.
 - Touching a database without reporting the operation first.
 - Adding a library, layer, or option nobody asked for.
@@ -251,6 +263,82 @@ anything shipped as a deliberate shortcut and left for later.
 What was actually run to confirm this works — and what was *not* verified.
 "Not run end-to-end because X" is a valid, useful line, not a confession.
 
+Each entry has one of two shapes:
+
+**Tool-run checks (compiler, build, tests, linter, type checker): the
+command and its full output.** Paste the log in a fenced block exactly as
+printed — every warning, not just the last `Finished`/`ok` line. A summary
+like "`cargo build`: passed, 1 warning" is a claim; the log is the evidence,
+and the trimmed-away warning is often what a later reader is looking for. A
+long log goes inside a `<details>` block, still complete.
+
+````markdown
+`cargo build --release`:
+
+```
+   Compiling app v0.3.1 (/work/app/src-tauri)
+warning: unused variable: `theme_prev`
+  --> src/settings.rs:42:9
+...
+    Finished `release` profile [optimized] target(s) in 41.87s
+```
+````
+
+(`...` here only shortens this example; in an ADR, paste every line.)
+
+**Checks a person makes (UI, UX, behavior on a real device): what was
+checked, and a signature.**
+
+```markdown
+- Dark-mode toggle on the settings screen; sidebar contrast readable.
+  Verified-by: wanyaldee (human), 2026-10-13
+```
+
+The signature names who answers for this check if it turns out wrong. Git
+records who *committed*; only the ADR records who *verified*. When the
+committer and the verifier are the same person on record, the pair gives a
+baseline of trust — both can be forged, but forging them takes deliberate
+effort. An agent signs only checks it ran itself: when a human did the
+check and the agent only heard about it, the human's name goes on the
+`Verified-by:` line, not the agent's. A check nobody did is listed under
+**Not verified**, never left unsigned.
+
+**Operations that change state (database writes and migrations, anything
+run with `sudo`, deploys, service restarts): a record per operation.** These
+are not checks — they are actions someone will need to trace or undo later.
+Each one gets its intent, its target, the full log, and who verified the
+result:
+
+````markdown
+- **Operation:** backfill `last_login_at` for existing users
+  **Intent:** every existing row gets a non-NULL approximate value, so the
+  admin page isn't blank for them
+  **Target:** staging, `appdb`
+  **Run by:** Claude Sonnet 5.5 (AI agent), 2026-10-13
+
+  ```
+  $ mysql -u admin -p appdb -e "UPDATE users SET last_login_at = updated_at WHERE last_login_at IS NULL;"
+  Query OK, 18231 rows affected (2.17 sec)
+  Rows matched: 18231  Changed: 18231  Warnings: 0
+  ```
+
+  Verified-by: wanyaldee (human), 2026-10-13 — `SELECT COUNT(*) FROM users
+  WHERE last_login_at IS NULL` returned 0
+````
+
+Write the intent as the result the operation should produce, so the
+verifier has something to compare against. The verifier checks that
+result — "`Query OK`" or exit 0 only shows the command ran. A command with
+no output is recorded as `(no output, exit 0)`. An operation whose result
+nobody checked is listed under **Not verified**.
+
+**Review by another model is supporting evidence, not verification.** Have
+a second model (or agent) review the change if you like, and record it as
+`Reviewed-by: <model>`, but do not count it as a check of the behavior.
+Models share blind spots, just as two reviewers from the same team share
+assumptions — a second reviewer raises confidence without replacing someone
+looking at what the code actually does. That holds for human reviewers too.
+
 ### Rationalization table
 
 | Excuse | Reality |
@@ -260,6 +348,10 @@ What was actually run to confirm this works — and what was *not* verified.
 | "It's obviously the standard pattern, doesn't need justifying" | If it's standard, say so in one line, then name the one non-obvious choice (a specific timeout, a specific ordering). Ten seconds of work, worth far more than "standard pattern." |
 | "The AI wrote it correctly, I don't need to re-derive why" | Correctness and understanding are different things. Unable to explain it now means unable to safely change it later, and unable to take responsibility for it today. |
 | "This is a small change" | Small and self-explanatory doesn't need an ADR at all (see When to write one). If it earned an ADR, it earned a real Reason section. |
+| "The build passed, the last line is enough" | The lines above `Finished` are where the warnings are. Paste the whole log; the reader decides what matters. |
+| "The user said it looks fine, I'll note that" | Then the user verified it: put their name and the date on a `Verified-by:` line. Prose such as "the user confirmed" doesn't say who is accountable. |
+| "The migration printed `Query OK`, that's the verification" | That shows the statement ran, not that the data is now what the intent says. Someone checks the result, and signs. |
+| "Another model reviewed it, so it's verified" | That's a review, not a check of the behavior. Record it as `Reviewed-by:` and keep the actual check (or its absence) separate. |
 
 ### Quick reference
 
@@ -270,7 +362,7 @@ What was actually run to confirm this works — and what was *not* verified.
 | Reason | Why *this* code — code included, choice-by-choice |
 | Alternatives rejected | What else was considered, and why not, one line each |
 | Consequences | What gets easier/harder; known ceilings |
-| Verification | What was actually run; what wasn't |
+| Verification | Full logs for tool runs; a signature on checks a person made; intent + log + verifier for each DB/sudo/deploy operation; what wasn't verified |
 
 ---
 
