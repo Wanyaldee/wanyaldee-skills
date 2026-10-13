@@ -25,6 +25,17 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Before editing a function, grep every caller. Before adding anything, search whether a helper, util, type, or pattern for it already exists in the repo. Re-implementing what lives a few files over is the most common failure.
 - Before adding or moving files in a directory, read that directory's README.md (and any convention doc it points to). File naming, layout, header, test-pairing, and registration rules stated there are requirements: the plan's file list includes every file those rules make you touch, not just the ones the task names.
 - Never guess an API. Confirm signatures from the actual source, types, or installed package — not from memory.
+- Code that looks wrong (an odd sleep, a tiny page size, an old pinned version, a hand-rolled copy of a library function) usually had a reason: a library bug or missing feature, a machine or runtime limit, an external API limit, a deadline. When you find such code outside your task, leave a note in the final report in this shape, one per item:
+
+  ```markdown
+  **sync.py:9 `time.sleep(1.2)`, `per_page=50`**
+  - Hypotheses: (a) undocumented API rate limit hit in 2023; (b) deadline: commit says "quick fix before release"; (c) memory limit on the old worker host
+  - Evidence: `git blame` → h-tanaka, 2023-03-02, "quick fix before release"; no comment, no ADR
+  - Question for h-tanaka (last commit 2024-01): "Was the 1.2s sleep added because of 429s from /orders, or as a precaution before release?"
+  - Proposal (not implemented): if (a) no longer holds, `per_page=500` and no sleep cuts the sync from N/50 to N/500 requests; measure on staging first
+  ```
+
+  Give at least two hypotheses; let the evidence (blame, commit message, linked issue, comments) say which is likely, and mark each with its confidence. Address the question to the person `git blame` names, with their last-commit date so the reader knows whether they can still be asked. When nobody can be asked, write "Owner: unknown" (or "left"): the hypotheses stay on record unconfirmed, and they are what lets the next reader avoid the same trap. Write a Proposal only if the evidence suggests the constraint may no longer hold, and never implement it in this task.
 
 ## 2. Diagnose the root cause, not the symptom
 
@@ -39,7 +50,7 @@ Apply this workflow to every coding task. The goal is not more effort everywhere
 - Climb this ladder and stop at the first rung that holds: doesn't need to exist (YAGNI) → already in the codebase → stdlib → native platform feature (CSS over JS, DB constraint over app code, `<input type="date">` over a picker lib) → already-installed dependency → a few lines of new code. Never add a dependency for what a few lines can do.
 - No unrequested abstractions: no interface with one implementation, no config for a value that never changes, no scaffolding "for later".
 - No drive-by improvements: "fixed it while I was there" and "made the design better" are banned. Adjacent improvements you notice get listed as proposals at the end, not implemented.
-- Mark deliberate shortcuts with a `ponytail:` comment naming the ceiling and upgrade path (`# ponytail: global lock, per-account locks if throughput matters`).
+- Mark deliberate shortcuts with a `ponytail:` comment naming the constraint that forced it, the ceiling, and the upgrade path (`# ponytail: deadline 2026-10 release; global lock, per-account locks if throughput matters`). The constraint is the part a later reader can't recover from the code: library bug (with issue link), machine spec, API limit, deadline.
 - Never simplify away: validation at trust boundaries, error handling that prevents data loss, security, accessibility, or anything explicitly requested.
 
 ## 4. Database operations — report before executing
@@ -94,6 +105,7 @@ These are this user's defaults, not a universal standard — adjust to whatever 
 - A third variant of a fix that has already failed twice on the same error.
 - "It should work" about anything not actually run.
 - Editing before reading the callers.
+- Calling inherited code wrong, or proposing to replace it, without hypotheses for why it was written that way and a question for its owner.
 - Patching the reported path while sibling paths stay broken.
 - Touching a database without reporting the operation first.
 - Adding a library, layer, or option nobody asked for.
