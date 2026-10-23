@@ -26,12 +26,14 @@ four.
 
 This package is distributed as a Claude Code plugin
 (`/plugin install wanyaldee-skills@wanyaldee-skills`), which only Claude
-Code understands — other agents have no install step. To use this guidance
-somewhere else:
+Code understands. To use this guidance somewhere else:
 
 1. `git clone https://github.com/Wanyaldee/wanyaldee-skills`
-2. Copy this file (or a single `skills/<name>/AGENTS.md` fragment) into the
-   target project as its `AGENTS.md`, or append it to an existing one.
+2. Run `./install.sh` and pick your agent. Codex CLI, Cursor, Gemini CLI,
+   and GitHub Copilot get the four skills as on-demand Agent Skills
+   (`SKILL.md` folders); `--agent agents-md --project DIR` appends this
+   file to `DIR/AGENTS.md` instead. Or copy this file (or a single
+   `skills/<name>/AGENTS.md` fragment) into the target project by hand.
 3. Adjust anything environment-specific before relying on it as-is —
    "Stack notes" in the coding-discipline section below, and the
    tech-stack choices in the dev-philosophy section, describe *this user's*
