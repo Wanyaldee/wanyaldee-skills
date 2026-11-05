@@ -190,8 +190,36 @@ If you're testing the hook, this is the behaviour you'd expect for a `.pem` file
 [DEBUG] hooks module wanyaldee-skills@inline, context-handoff@wanyaldee-skills session.start settled in 96.3ms (worker hop, next() included)
 ```
 
+マーケットプレイス更新後の対話セッション(作成したセッション。sticky-notes の開発用コピーも hot load しているため名前が2つ出る):
+
+```
+> /plugin
+wanyaldee-skills is already at the latest version (2.13.0).
+> /reload-plugins
+Reloaded: 7 plugins · 33 skills · 6 agents · 3 hooks · 16 plugin MCP servers · 0 plugin LSP servers
+1 error during load. Run /plugin for details.
+> /sticky
+sticky-notes+wanyaldee-skills: 付箋ペインを開きました。
+```
+
+読み込みエラー1件は、インストールされたまま `Plugin context-handoff not found in marketplace wanyaldee-skills` で失敗していた単体の `context-handoff@wanyaldee-skills`。下の操作で削除した。
+
+- インストールした v2.13.0 が `/sticky` に応答してペインが開き、ステータスラインに context-handoff の使用量が表示される。
+  Verified-by: Wanyaldee (human), 2026-11-05
+
+- **操作:** 単体の `context-handoff` プラグインのアンインストール
+  **意図:** このマーケットプレイスからは `wanyaldee-skills@wanyaldee-skills`(2.13.0)だけが残り、どちらの Mod も二重に動かず、読み込みエラーも消える
+  **対象:** このマシン(WSL、`~/.claude`)のユーザースコープのプラグイン
+  **実行者:** Claude Opus 5.5(AI エージェント)、2026-11-05、Wanyaldee の了承のもと
+
+  ```
+  $ claude plugin uninstall context-handoff@wanyaldee-skills
+  ✔ Successfully uninstalled plugin: context-handoff (scope: user)
+  ```
+
+  確認: Claude Opus 5.5(AI エージェント)、2026-11-05 — その後の `claude plugin list` の Installed plugins は `frontend-design@claude-plugins-official`(1.1.1、enabled)と `wanyaldee-skills@wanyaldee-skills`(2.13.0、enabled)のみ。
+
 **未検証:**
 
-- `/plugin install` / マーケットプレイス更新経由での v2.13.0 のインストール(実行したのは `--plugin-dir` のみ)。
-- 同梱版の対話セッションでの sticky-notes のペインと context-handoff の帯(ヘッドレス実行では UI は描かれない)。
-- 更新後の単体プラグインのアンインストール。
+- 同梱版での context-handoff の再開確認の帯(`AbovePrompt`): 保留中の引き継ぎがあるときだけ出るもので、今回はなかった。
+- このマシンでは単体の `sticky-notes` をインストールしたことがなく、そのアンインストール経路は通っていない。

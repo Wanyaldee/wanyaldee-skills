@@ -243,10 +243,46 @@ Debug log lines naming the plugin (`--debug-file`):
 [DEBUG] hooks module wanyaldee-skills@inline, context-handoff@wanyaldee-skills session.start settled in 96.3ms (worker hop, next() included)
 ```
 
+Interactive session after the marketplace update (the authoring session,
+which also hot-loads a dev copy of sticky-notes, hence the second name):
+
+```
+> /plugin
+wanyaldee-skills is already at the latest version (2.13.0).
+> /reload-plugins
+Reloaded: 7 plugins · 33 skills · 6 agents · 3 hooks · 16 plugin MCP servers · 0 plugin LSP servers
+1 error during load. Run /plugin for details.
+> /sticky
+sticky-notes+wanyaldee-skills: 付箋ペインを開きました。
+```
+
+The one load error was the standalone `context-handoff@wanyaldee-skills`,
+still installed and failing with `Plugin context-handoff not found in
+marketplace wanyaldee-skills`; it was removed by the operation below.
+
+- Installed v2.13.0 answers `/sticky` and its pane opens; the context-handoff
+  usage line shows in the status line.
+  Verified-by: Wanyaldee (human), 2026-11-05
+
+- **Operation:** uninstall the standalone `context-handoff` plugin
+  **Intent:** only `wanyaldee-skills@wanyaldee-skills` (2.13.0) remains from
+  this marketplace, so neither mod can run twice and the load error is gone
+  **Target:** user-scope plugins of this machine (WSL, `~/.claude`)
+  **Run by:** Claude Opus 5.5 (AI agent), 2026-11-05, on Wanyaldee's go-ahead
+
+  ```
+  $ claude plugin uninstall context-handoff@wanyaldee-skills
+  ✔ Successfully uninstalled plugin: context-handoff (scope: user)
+  ```
+
+  Checked by Claude Opus 5.5 (AI agent), 2026-11-05 — `claude plugin list`
+  then listed, under Installed plugins, only
+  `frontend-design@claude-plugins-official` (1.1.1, enabled) and
+  `wanyaldee-skills@wanyaldee-skills` (2.13.0, enabled).
+
 **Not verified:**
 
-- Installing v2.13.0 through `/plugin install` / marketplace update (only
-  `--plugin-dir` was run).
-- The sticky-notes pane and the context-handoff band in an interactive
-  session of the bundled plugin (the headless run draws no UI).
-- Uninstalling the standalone plugins after the update.
+- The context-handoff resume band (`AbovePrompt`) in the bundled plugin: it
+  appears only when a handoff is pending, and none was.
+- A standalone `sticky-notes` install was never made on this machine, so its
+  uninstall path was not exercised.
