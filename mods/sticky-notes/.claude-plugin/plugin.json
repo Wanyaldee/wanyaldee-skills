@@ -1,8 +1,0 @@
-{
-  "name": "sticky-notes",
-  "version": "0.1.0",
-  "description": "Side pane of sticky notes: next commands, a conversation summary, and your own understanding checked against the conversation and the repository's docs",
-  "author": { "name": "Wanyaldee" },
-  "license": "MIT",
-  "types": "./types/index.d.ts"
-}

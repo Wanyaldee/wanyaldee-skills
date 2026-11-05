@@ -66,13 +66,15 @@ Codex CLI / Cursor / Gemini CLI / GitHub Copilot は Agent Skills 標準(`SKILL.
 
 **動作確認の範囲**: メンテナーは普段 Claude Code のみを使用しており、Codex CLI や Cursor など他エージェントでの実地テストは行っていない。想定通りに動かない、指示の解釈が食い違う等に気づいた場合は GitHub Issue で報告してほしい。MIT License で配布している OSS なので、直してほしい内容が明確なら Issue を待つより自分で直した方が早いはず — フォークして修正・PR も歓迎する。
 
-## Mod: context-handoff(別プラグイン)
+## Mod(v2.13.0〜、本体に同梱)
 
-Claude Code の function hooks で書いた Mod。スキル本体とは独立した別プラグインとして同じマーケットプレイスに収録している(ソースは [`mods/context-handoff/`](mods/context-handoff))。
+Claude Code の function hooks で書いた Mod を2つ、本体プラグインに同梱している。`/plugin install wanyaldee-skills@wanyaldee-skills` だけで両方有効になる(入口は [`hooks/mods.tsx`](hooks/mods.tsx)、各 Mod のソースは [`mods/`](mods))。
 
-```
-/plugin install context-handoff@wanyaldee-skills
-```
+v2.12.0 以前に `context-handoff@wanyaldee-skills` / `sticky-notes@wanyaldee-skills` を単体でインストールしていた場合は、本体を更新したうえで単体の方をアンインストールすること(残すと同じ Mod が二重に動く)。単体時代に保存された付箋・引き継ぎ記録は引き継がれない。詳細は ADR 0023。
+
+### context-handoff
+
+ソースは [`mods/context-handoff/`](mods/context-handoff)。
 
 - **常時表示**: ステータスラインに `ctx 42% (84k/200k) · 5h 63% · 7d 20%` を表示。ターン終了ごと、およびレート制限の窓が1ポイント動くたびに更新。レート制限はサブスクリプション利用時のみ表示される。
 - **制限接近時の自動引き継ぎ**: レート制限(5h / 7d)のどれか、またはコンテキストが 90% に達したら、セッションごとに1回だけ:
@@ -86,13 +88,9 @@ Claude Code の function hooks で書いた Mod。スキル本体とは独立し
 
 注意: チェックポイントは現在のブランチに、.gitignore 対象外の未追跡ファイルも含めてコミットする。判定はターン終了時のみなので、1ターンの途中で 100% に達した場合は間に合わない。詳細は ADR 0018。
 
-## Mod: sticky-notes(別プラグイン)
+### sticky-notes
 
 会話の横に付箋ペインを出す Mod(ソースは [`mods/sticky-notes/`](mods/sticky-notes))。
-
-```
-/plugin install sticky-notes@wanyaldee-skills
-```
 
 `/sticky` でペインを開く。3つの欄がある:
 

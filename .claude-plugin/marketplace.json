@@ -7,17 +7,7 @@
     {
       "name": "wanyaldee-skills",
       "source": "./",
-      "description": "Wanyaldee's Skills Package: coding discipline, dev philosophy, Fable 5 prompting, memory discipline + audit."
-    },
-    {
-      "name": "context-handoff",
-      "source": "./mods/context-handoff",
-      "description": "Mod: always-on context/rate-limit usage in the status line, plus an automatic commit + handoff note when a limit nears, and a resume prompt on the next launch in the same repo."
-    },
-    {
-      "name": "sticky-notes",
-      "source": "./mods/sticky-notes",
-      "description": "Mod: a side pane of sticky notes — commands to run next, an on-demand conversation summary, and a thread of your own understanding, each note checked against the conversation and the repo's CLAUDE.md/AGENTS.md/ADRs/README; saved per repository."
+      "description": "Wanyaldee's Skills Package: coding discipline, dev philosophy, Fable 5 prompting, memory discipline + audit, plus two mods (context-handoff, sticky-notes)."
     }
   ]
 }

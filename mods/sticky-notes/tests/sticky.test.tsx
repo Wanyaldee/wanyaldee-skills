@@ -7,7 +7,7 @@ const RUN = {
 } as const
 
 const PANE = {
-  plugin: 'sticky-notes',
+  plugin: 'wanyaldee-skills',
   component: 'Pane',
   requestId: 'sticky-notes',
   props: {
@@ -27,6 +27,10 @@ type On = Parameters<TestBody>[1]
 // Stands in for the engine: a repo at /repo with one ADR, and a store map.
 function engine(on: On, files: Record<string, string> = {}, store: Record<string, unknown> = {}) {
   on('clock.now', () => ({ value: 0 }))
+  // context-handoff's start runs in the same session.start hook: give it a quiet usage.
+  on('session.usage', () => ({ value: { startedAt: 0, context: { window: 200_000 }, rateLimits: [] } }))
+  on('session.cwd', () => ({ value: '/repo' }))
+  on('process.run', () => ({ value: { exitCode: 0, stdout: '/repo\n', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }))
   on('session.root', () => ({ value: '/repo' }))
   on('store.get', (_, e) => ({ value: store[e.key] }))
   on('store.set', (_, e) => ((store[e.key] = e.value), { value: undefined }))
@@ -65,13 +69,13 @@ test('commands and notes added by slash command show in the pane and are saved p
     expect((await ui.find({ type: 'Text', text: /DBは/ }))?.text).toBe('DBは触らない方針')
     await ui.unmount()
   }
-  const saved = store['repo:/repo'] as { commands: { text: string }[] }
+  const saved = store['sticky-notes:/repo'] as { commands: { text: string }[] }
   expect(saved.commands.map(c => c.text)).toEqual(['git push origin main'])
 })
 
 test('a new session in the same repo loads the saved notes', async ($, on) => {
   engine(on, {}, {
-    'repo:/repo': {
+    'sticky-notes:/repo': {
       commands: [{ id: 'a', text: 'npm test', at: 0 }],
       notes: [{ id: 'b', text: '前回の認識', at: 0, review: { verdict: 'pending', comment: '' } }],
     },
