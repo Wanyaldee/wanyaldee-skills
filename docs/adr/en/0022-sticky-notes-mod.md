@@ -246,13 +246,16 @@ Live session (the authoring session, mod hot-loaded from the dev folder):
 `付箋ペインを開きました。`, `コマンドを付箋に追加しました。` and
 `認識を付箋に書き込みました。` respectively.
 
+- The pane's look in a terminal (the three sections and the notes in them).
+  Verified-by: Wanyaldee (human), 2026-11-05
+
 **Not verified:**
 
-- What the pane looks like in a terminal, and whether a verdict that lands
-  after the pane is drawn redraws it without reopening. In the test harness a
+- Whether a verdict that lands after the pane is drawn redraws it without
+  reopening. In the test harness a
   mounted pane did not redraw on a write from the detached check (a fresh
   mount showed the verdict); the engine documents that a `$.state` write
-  redraws its readers, but no person has looked at the live pane yet.
+  redraws its readers, but nobody has watched a live pane for this yet.
 - Loading saved notes in a new session on a real store (covered only by a
   stubbed-store test).
 - Verdict quality of haiku on real notes against this repo's docs.
