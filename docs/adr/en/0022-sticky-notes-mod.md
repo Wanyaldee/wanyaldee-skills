@@ -248,14 +248,14 @@ Live session (the authoring session, mod hot-loaded from the dev folder):
 
 - The pane's look in a terminal (the three sections and the notes in them).
   Verified-by: Wanyaldee (human), 2026-11-05
+- A `⚠ ここ違うかも` reply appeared under a note in the live pane as the
+  check finished, without reopening the pane. (In the test harness a mounted
+  pane did not redraw on that write and the test re-mounts instead; the live
+  engine does redraw.)
+  Verified-by: Wanyaldee (human), 2026-11-05
 
 **Not verified:**
 
-- Whether a verdict that lands after the pane is drawn redraws it without
-  reopening. In the test harness a
-  mounted pane did not redraw on a write from the detached check (a fresh
-  mount showed the verdict); the engine documents that a `$.state` write
-  redraws its readers, but nobody has watched a live pane for this yet.
 - Loading saved notes in a new session on a real store (covered only by a
   stubbed-store test).
 - Verdict quality of haiku on real notes against this repo's docs.
