@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import type { Handoff } from '../types'
+import type { Handoff } from '../../../types'
 import { formatStatus, limitReason, resumePrompt, resumeQuestion, storeKey } from './logic'
 
 const HANDOFF: Handoff = {

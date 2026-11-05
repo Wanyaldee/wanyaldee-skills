@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, SessionContextUsage, SessionRateLimit } from 'claude-code'
 
-import type { Handoff } from '../types'
+import type { Handoff } from '../../../types'
 import {
   HANDOFF_FILE,
   SUMMARY_PROMPT,
@@ -15,8 +15,8 @@ import {
   wrapUpNote,
 } from './logic'
 
-const pending = atom({ plugin: 'context-handoff', key: 'pending' } as const, null)
-const hasSavedThisSession = atom({ plugin: 'context-handoff', key: 'hasSavedThisSession' } as const, false)
+const pending = atom({ plugin: 'wanyaldee-skills', key: 'pending' } as const, null)
+const hasSavedThisSession = atom({ plugin: 'wanyaldee-skills', key: 'hasSavedThisSession' } as const, false)
 
 const FALLBACK_PROMPTS = 3
 
@@ -102,28 +102,28 @@ async function settle($: EngineInterface, handoff: Handoff) {
   await update($, pending, () => null)
 }
 
-export const register: Register = on => {
-  on('session.start', async ($, e, next) => {
-    await $.command.register({
-      name: 'handoff',
-      description: '今の作業を記録・コミットし、次のセッションへ引き継ぐ',
-    })
-    const usage = await $.session.usage()
-    showUsage($, usage.context, usage.rateLimits)
-
-    // A hot reload fires session.start again: never offer this session's own handoff back to it.
-    const isOwnHandoff = await read($, hasSavedThisSession)
-    if (e.isInteractive && !isOwnHandoff) {
-      const saved = (await $.store.get(storeKey(await repoRootOf($)))) as Handoff | undefined
-      if (saved !== undefined) {
-        await update($, pending, () => saved)
-        $.ui.toast(resumeQuestion(saved))
-      }
-    }
-
-    return next(e)
+// Called from the plugin's single session.start hook (hooks/mods.tsx): one plugin
+// may hook session.start without a matcher only once.
+export async function start($: EngineInterface, e: { isInteractive: boolean }) {
+  await $.command.register({
+    name: 'handoff',
+    description: '今の作業を記録・コミットし、次のセッションへ引き継ぐ',
   })
+  const usage = await $.session.usage()
+  showUsage($, usage.context, usage.rateLimits)
 
+  // A hot reload fires session.start again: never offer this session's own handoff back to it.
+  const isOwnHandoff = await read($, hasSavedThisSession)
+  if (e.isInteractive && !isOwnHandoff) {
+    const saved = (await $.store.get(storeKey(await repoRootOf($)))) as Handoff | undefined
+    if (saved !== undefined) {
+      await update($, pending, () => saved)
+      $.ui.toast(resumeQuestion(saved))
+    }
+  }
+}
+
+export const register: Register = on => {
   on('session.measure', async ($, e, next) => {
     showUsage($, e.context, e.rateLimits)
     const reason = limitReason(e.context, e.rateLimits)

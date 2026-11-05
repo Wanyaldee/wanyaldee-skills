@@ -2,6 +2,8 @@
 
 (日本語: [0018-context-handoff-mod.ja.md](../ja/0018-context-handoff-mod.ja.md))
 
+> Packaging superseded by [ADR 0023](0023-bundle-mods-into-main-plugin.md): the mod now ships inside the `wanyaldee-skills` plugin.
+
 ## Context
 
 The user asked (2026-10-04) for a mod that (a) always shows how much of the

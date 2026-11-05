@@ -1,6 +1,6 @@
 import type { SessionContextUsage, SessionRateLimit } from 'claude-code'
 
-import type { Handoff } from '../types'
+import type { Handoff } from '../../../types'
 
 export const CONTEXT_THRESHOLD = 90
 export const RATE_LIMIT_THRESHOLD = 90

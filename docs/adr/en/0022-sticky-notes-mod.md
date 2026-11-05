@@ -2,6 +2,8 @@
 
 (日本語: [0022-sticky-notes-mod.ja.md](../ja/0022-sticky-notes-mod.ja.md))
 
+> Packaging superseded by [ADR 0023](0023-bundle-mods-into-main-plugin.md): the mod now ships inside the `wanyaldee-skills` plugin.
+
 ## Context
 
 The user asked (2026-11-05) for a mod that keeps, beside the chat in the same

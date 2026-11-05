@@ -1,16 +1,16 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { Review, Sticky, Summary } from '../types'
+import type { Review, Sticky, Summary } from '../../../types'
 
 const PANE = 'sticky-notes'
 const TITLE = '付箋'
 
 // State is session-scoped ($.state), so notes live as long as this session.
-const commands = atom({ plugin: 'sticky-notes', key: 'commands' } as const, [] as Sticky[], { shape: 'sticky-1' })
-const notes = atom({ plugin: 'sticky-notes', key: 'notes' } as const, [] as Sticky[], { shape: 'sticky-1' })
-const summary = atom({ plugin: 'sticky-notes', key: 'summary' } as const, null as Summary | null, { shape: 'summary-1' })
-const isSummarizing = atom({ plugin: 'sticky-notes', key: 'isSummarizing' } as const, false)
+const commands = atom({ plugin: 'wanyaldee-skills', key: 'commands' } as const, [] as Sticky[], { shape: 'sticky-1' })
+const notes = atom({ plugin: 'wanyaldee-skills', key: 'notes' } as const, [] as Sticky[], { shape: 'sticky-1' })
+const summary = atom({ plugin: 'wanyaldee-skills', key: 'summary' } as const, null as Summary | null, { shape: 'summary-1' })
+const isSummarizing = atom({ plugin: 'wanyaldee-skills', key: 'isSummarizing' } as const, false)
 
 // Transcript cap sent to the summarizer: keeps one haiku call cheap on long sessions.
 const MAX_CHARS = 40_000
@@ -33,9 +33,12 @@ type Which = 'commands' | 'notes'
 
 // Per-repository persistence: $.state is the live copy the pane redraws from,
 // $.store (kept across sessions) the durable one, keyed by the project root.
+// The store is shared with context-handoff (one plugin), hence the prefix.
 // ponytail: last write wins; two sessions open on one repo overwrite each other's
 // additions. Merge by id on write if that starts to matter.
-const storeKey = async ($: EngineInterface) => `repo:${await $.session.root()}`
+async function storeKey($: EngineInterface) {
+  return `sticky-notes:${await $.session.root()}`
+}
 type Saved = { commands: Sticky[]; notes: Sticky[] }
 
 async function save($: EngineInterface) {
@@ -182,15 +185,16 @@ async function summarize($: EngineInterface) {
   }
 }
 
+// Called from the plugin's single session.start hook (hooks/mods.tsx).
+export async function start($: EngineInterface) {
+  await $.command.register({ name: 'sticky', description: '付箋ペインを開く' })
+  await $.command.register({ name: 'sticky-cmd', description: '付箋: 次に打つコマンドを追加' })
+  await $.command.register({ name: 'sticky-note', description: '付箋: 自分の認識を書き込む' })
+  await $.command.register({ name: 'sticky-summary', description: '付箋: 会話の概要を更新' })
+  await load($)
+}
+
 export const register: Register = on => {
-  on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'sticky', description: '付箋ペインを開く' })
-    await $.command.register({ name: 'sticky-cmd', description: '付箋: 次に打つコマンドを追加' })
-    await $.command.register({ name: 'sticky-note', description: '付箋: 自分の認識を書き込む' })
-    await $.command.register({ name: 'sticky-summary', description: '付箋: 会話の概要を更新' })
-    await load($)
-    return next(e)
-  })
 
   on('command.run', { command: 'sticky' }, async $ => {
     await $.ui.open({ id: PANE, title: TITLE })

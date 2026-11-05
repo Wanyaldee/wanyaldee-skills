@@ -2,6 +2,8 @@
 
 (English: [0018-context-handoff-mod.md](../en/0018-context-handoff-mod.md))
 
+> パッケージングは [ADR 0023](0023-bundle-mods-into-main-plugin.ja.md) で置き換え: この Mod は現在 `wanyaldee-skills` プラグインに同梱されている。
+
 ## 背景 (Context)
 
 ユーザーが(2026-10-04)次の Mod を依頼した: (a) コンテキストの使用量を常時
