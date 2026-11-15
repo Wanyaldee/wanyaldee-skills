@@ -17,6 +17,7 @@ END='<!-- wanyaldee-skills:end -->'
 usage() {
     cat <<'EOF'
 Usage: ./install.sh [--agent LIST] [--project DIR] [--dry-run] [--yes]
+       ./install.sh --update
 
   --agent LIST   comma-separated: codex, cursor, gemini, antigravity, copilot,
                  agents-md
@@ -25,6 +26,7 @@ Usage: ./install.sh [--agent LIST] [--project DIR] [--dry-run] [--yes]
                  (required for agents-md)
   --dry-run      show what would be written, change nothing
   --yes          skip the confirmation prompt
+  --update       git pull, then re-run every install recorded by earlier runs
 
 Claude Code: use the plugin instead —
   /plugin marketplace add Wanyaldee/wanyaldee-skills
@@ -34,17 +36,31 @@ EOF
 
 die() { echo "install.sh: $*" >&2; exit 1; }
 
-AGENTS="" PROJECT="" DRY=0 YES=0
+AGENTS="" PROJECT="" DRY=0 YES=0 UPDATE=0
+RECORD="${XDG_CONFIG_HOME:-$HOME/.config}/wanyaldee-skills/installs"
 while [ $# -gt 0 ]; do
     case "$1" in
         --agent) [ $# -ge 2 ] || die "--agent needs a value"; AGENTS="$2"; shift 2 ;;
         --project) [ $# -ge 2 ] || die "--project needs a value"; PROJECT="$2"; shift 2 ;;
         --dry-run) DRY=1; shift ;;
         --yes) YES=1; shift ;;
+        --update) UPDATE=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) usage >&2; exit 2 ;;
     esac
 done
+
+if [ "$UPDATE" -eq 1 ]; then
+    [ -f "$RECORD" ] || die "nothing recorded in $RECORD; run an install first"
+    git -C "$REPO" pull --ff-only || die "git pull failed"
+    # Each line is "agents|project" (project empty = home directory).
+    while IFS='|' read -r rec_agents rec_project; do
+        echo "== $rec_agents ${rec_project:+($rec_project)}"
+        if [ -n "$rec_project" ]; then sh "$REPO/install.sh" --agent "$rec_agents" --project "$rec_project" --yes
+        else sh "$REPO/install.sh" --agent "$rec_agents" --yes; fi
+    done < "$RECORD"
+    exit 0
+fi
 
 if [ -z "$AGENTS" ]; then
     [ -t 0 ] || die "no --agent given and stdin is not a terminal"
@@ -137,7 +153,7 @@ for t in $TARGETS; do
         for s in $SKILLS; do echo "  $t/$s/SKILL.md"; done
     fi
 done
-echo "Existing files that differ are kept as <file>.bak.$STAMP."
+echo "Existing files that differ are kept as <file>.bak.$STAMP (only the latest backup is kept)."
 
 [ "$DRY" -eq 1 ] && { echo "(dry run, nothing written)"; exit 0; }
 if [ "$YES" -eq 0 ]; then
@@ -153,6 +169,7 @@ fi
 install_file() {
     if [ -f "$1" ]; then
         if cmp -s "$1" "$2"; then echo "  unchanged $1"; return; fi
+        rm -f "$1".bak.*   # keep only the latest backup
         cp "$1" "$1.bak.$STAMP"
     fi
     mkdir -p "$(dirname "$1")"
@@ -185,3 +202,8 @@ for t in $TARGETS; do
     fi
 done
 echo "Done. Restart the agent if the skills don't appear."
+
+# Remember this install so --update can repeat it (one line per distinct install).
+mkdir -p "$(dirname "$RECORD")"
+rec="${AGENTS#,}|${PROJECT:+$BASE}"
+grep -qxF "$rec" "$RECORD" 2>/dev/null || echo "$rec" >> "$RECORD"

@@ -48,7 +48,10 @@ cd wanyaldee-skills
 ./install.sh --agent codex,cursor             # 非対話
 ./install.sh --agent copilot --project ~/src/myapp   # 特定リポジトリにだけ入れる
 ./install.sh --agent agents-md --project ~/src/myapp # Skills 非対応エージェント向け
+./install.sh --update                         # git pull して、過去にインストールした分を全部入れ直す
 ```
+
+`--update` は、過去の実行が `~/.config/wanyaldee-skills/installs`(`XDG_CONFIG_HOME` 尊重)に残した「エージェント|プロジェクト」の記録を読み、`git pull --ff-only` の後に同じ内容で再インストールする(`--dry-run` は記録しない)。変更が無いファイルは `unchanged`。Claude Code はこのスクリプトの対象外なので `claude plugin update wanyaldee-skills` で更新する。記録済みのプロジェクトが消えている場合は、そこで中断する。
 
 Codex CLI / Cursor / Gemini CLI / Antigravity CLI / GitHub Copilot は Agent Skills 標準(`SKILL.md` フォルダ)に対応しているため、4スキルをオンデマンド読み込みのスキルとして入れる(ADR 0021):
 
@@ -59,7 +62,7 @@ Codex CLI / Cursor / Gemini CLI / Antigravity CLI / GitHub Copilot は Agent Ski
 | `copilot` | `~/.copilot/skills/` | `DIR/.github/skills/` |
 | `agents-md` | (不可) | `DIR/AGENTS.md` にマーカー付きブロックで追記 |
 
-`codex`/`cursor`/`gemini` は3者とも `.agents/skills/` を読むので、複数選んでも1部しか書かない。`antigravity` はユーザー全体では別ディレクトリ(公式ドキュメントの CLI 用グローバル置き場)に書くため、`codex` 等と同時に選ぶと2か所に入る(`--project` 時は `.agents/skills/` 共通で1部)。Antigravity CLI が `~/.agents/skills/` も読むかは未確認。インストールされる `SKILL.md` は、正本 `SKILL.md` の frontmatter に `skills/<name>/AGENTS.md` 断片の本文(Claude 固有の記法を一般化済み)を結合したもの。既存ファイルと内容が異なる場合は `<file>.bak.<timestamp>` に退避してから上書きし、同一なら何もしない。`--dry-run` で書き込み先だけ表示する。
+`codex`/`cursor`/`gemini` は3者とも `.agents/skills/` を読むので、複数選んでも1部しか書かない。`antigravity` はユーザー全体では別ディレクトリ(公式ドキュメントの CLI 用グローバル置き場)に書くため、`codex` 等と同時に選ぶと2か所に入る(`--project` 時は `.agents/skills/` 共通で1部)。Antigravity CLI が `~/.agents/skills/` も読むかは未確認。インストールされる `SKILL.md` は、正本 `SKILL.md` の frontmatter に `skills/<name>/AGENTS.md` 断片の本文(Claude 固有の記法を一般化済み)を結合したもの。既存ファイルと内容が異なる場合は `<file>.bak.<timestamp>` に退避(直近1世代のみ保持)してから上書きし、同一なら何もしない。`--dry-run` で書き込み先だけ表示する。
 
 手動で入れる場合は、従来どおり上記いずれかのファイルを対象プロジェクトの `AGENTS.md` としてコピー(または既存の `AGENTS.md` に追記)する。ルートの `AGENTS.md` は約31KBあり、Codex の既定上限(32 KiB、`project_doc_max_bytes`)にほぼ達しているため、Codex ではスキル形式を推奨する。`fable-coding` の §8(スタック方針)や `dev-philosophy` の技術スタック選定はこのユーザー個人の既定値であり普遍的な標準ではないため、持ち込み先プロジェクトの実情に合わせて書き換えること。
 

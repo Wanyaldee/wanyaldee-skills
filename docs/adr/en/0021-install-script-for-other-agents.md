@@ -260,3 +260,11 @@ At user scope this is a separate directory from `~/.agents/skills`, so
 picking `codex` and `antigravity` together writes two copies. If Antigravity
 CLI also reads `~/.agents/skills`, it would list each skill twice. That was
 not checked: no real Antigravity CLI was run.
+
+Also added: `--update`. Each real install appends `agents|project` to
+`~/.config/wanyaldee-skills/installs` (deduped; dry runs are not recorded).
+`--update` runs `git pull --ff-only` and re-runs every recorded line with
+`--yes`. The installed files are generated from two repo files, so they
+cannot be symlinked and go stale until reinstalled. Claude Code is not
+recorded; use `claude plugin update`. A recorded project directory that no
+longer exists aborts the run at that line.
