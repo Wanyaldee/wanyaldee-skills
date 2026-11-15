@@ -258,8 +258,12 @@ project copy to the shared `.agents/skills` (deduped by `add_target`).
 
 At user scope this is a separate directory from `~/.agents/skills`, so
 picking `codex` and `antigravity` together writes two copies. If Antigravity
-CLI also reads `~/.agents/skills`, it would list each skill twice. That was
-not checked: no real Antigravity CLI was run.
+CLI also reads `~/.agents/skills`, it would list each skill twice. Checked
+on a real Antigravity CLI 1.5.9 (2026-11-15): `agy -p` listed the four
+installed skills, and none of the skills in `~/.agents/skills`. So it does
+not read that directory at user scope and there is no duplication. Whether
+the skills trigger in real work, and the project-scope `.agents/skills`,
+were not checked.
 
 Also added: `--update`. Each real install appends `agents|project` to
 `~/.config/wanyaldee-skills/installs` (deduped; dry runs are not recorded).

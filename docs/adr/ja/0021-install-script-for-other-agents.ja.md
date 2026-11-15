@@ -252,6 +252,6 @@ Verified-by: Claude Opus 5.5 (AI agent), 2026-10-23(上記の shellcheck と実�
 
 この ADR の後に `--agent antigravity` を追加した。Antigravity CLI は Gemini CLI とは別製品で、公式ドキュメントではユーザースコープが `~/.gemini/antigravity-cli/skills/<name>/`(`~/.gemini/skills/` も読む)、プロジェクトが `<workspace>/.agents/skills/` とされている。そのため `install.sh` はユーザースコープでは前者に、`--project` では共通の `.agents/skills`(`add_target` で重複排除)に書く。
 
-ユーザースコープでは `~/.agents/skills` とは別ディレクトリなので、`codex` と `antigravity` を同時に選ぶと2部書く。Antigravity CLI が `~/.agents/skills` も読む場合は同じスキルが二重に見えるが、未確認(実機の Antigravity CLI は動かしていない)。
+ユーザースコープでは `~/.agents/skills` とは別ディレクトリなので、`codex` と `antigravity` を同時に選ぶと2部書く。Antigravity CLI が `~/.agents/skills` も読む場合は同じスキルが二重に見える可能性があった。実機の Antigravity CLI 1.5.9 で確認した(2026-11-15): `agy -p` はインストールした4スキルを列挙し、`~/.agents/skills` のスキルは1つも列挙しなかった。つまりユーザースコープではそのディレクトリを読まず、二重にはならない。実作業での発火と、プロジェクトスコープの `.agents/skills` は未確認。
 
 あわせて `--update` を追加した。実際のインストールのたびに `~/.config/wanyaldee-skills/installs` へ `エージェント|プロジェクト` を追記し(重複なし、dry-run は記録しない)、`--update` は `git pull --ff-only` の後、記録された各行を `--yes` で再実行する。インストールされるファイルは2つのリポジトリファイルから生成されるためシンボリックリンクにできず、再インストールするまで古いままになる。Claude Code は記録対象外で、`claude plugin update` を使う。記録済みのプロジェクトディレクトリが消えている場合は、その行で中断する。

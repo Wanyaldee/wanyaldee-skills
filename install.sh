@@ -168,12 +168,13 @@ fi
 # SKILL.md would be picked up as a second copy of the skill.
 install_file() {
     if [ -f "$1" ]; then
-        if cmp -s "$1" "$2"; then echo "  unchanged $1"; return; fi
+        if cmp -s "$1" "$2"; then chmod 644 "$1"; echo "  unchanged $1"; return; fi
         rm -f "$1".bak.*   # keep only the latest backup
         cp "$1" "$1.bak.$STAMP"
     fi
     mkdir -p "$(dirname "$1")"
     cp "$2" "$1"
+    chmod 644 "$1"   # mktemp sources are 0600
     echo "  wrote     $1"
 }
 
