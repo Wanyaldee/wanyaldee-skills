@@ -246,3 +246,17 @@ Verified-by: Claude Opus 5.5 (AI agent), 2026-10-23 (shellcheck and runs above)
   Only the `--agent` path ran.
 - The script ran under `dash` and the `/bin/sh` it was launched with. It
   was not run on macOS (BSD `awk`/`cmp`).
+
+## Addendum: Antigravity CLI
+
+`--agent antigravity` was added after this ADR. Antigravity CLI is a
+different product from Gemini CLI. Its official docs give
+`~/.gemini/antigravity-cli/skills/<name>/` for user scope (it also loads
+`~/.gemini/skills/`) and `<workspace>/.agents/skills/` for a project.
+`install.sh` therefore writes the user-scope copy to the first path, and the
+project copy to the shared `.agents/skills` (deduped by `add_target`).
+
+At user scope this is a separate directory from `~/.agents/skills`, so
+picking `codex` and `antigravity` together writes two copies. If Antigravity
+CLI also reads `~/.agents/skills`, it would list each skill twice. That was
+not checked: no real Antigravity CLI was run.

@@ -18,7 +18,8 @@ usage() {
     cat <<'EOF'
 Usage: ./install.sh [--agent LIST] [--project DIR] [--dry-run] [--yes]
 
-  --agent LIST   comma-separated: codex, cursor, gemini, copilot, agents-md
+  --agent LIST   comma-separated: codex, cursor, gemini, antigravity, copilot,
+                 agents-md
                  (omit to choose from a menu)
   --project DIR  install into this repository instead of your home directory
                  (required for agents-md)
@@ -52,9 +53,10 @@ Which agent(s)? (space-separated numbers)
   1) Codex CLI
   2) Cursor
   3) Gemini CLI
-  4) GitHub Copilot
-  5) Other (write AGENTS.md into a project)
-  6) Claude Code (shows the plugin command)
+  4) Antigravity CLI
+  5) GitHub Copilot
+  6) Other (write AGENTS.md into a project)
+  7) Claude Code (shows the plugin command)
 EOF
     printf '> '
     read -r picks
@@ -63,9 +65,10 @@ EOF
             1) AGENTS="$AGENTS,codex" ;;
             2) AGENTS="$AGENTS,cursor" ;;
             3) AGENTS="$AGENTS,gemini" ;;
-            4) AGENTS="$AGENTS,copilot" ;;
-            5) AGENTS="$AGENTS,agents-md" ;;
-            6) usage | sed -n '/^Claude Code/,$p'; exit 0 ;;
+            4) AGENTS="$AGENTS,antigravity" ;;
+            5) AGENTS="$AGENTS,copilot" ;;
+            6) AGENTS="$AGENTS,agents-md" ;;
+            7) usage | sed -n '/^Claude Code/,$p'; exit 0 ;;
             *) die "unknown choice: $n" ;;
         esac
     done
@@ -94,6 +97,11 @@ add_target() {
 for a in $(echo "$AGENTS" | tr ',' ' '); do
     case "$a" in
         codex|cursor|gemini) add_target "$BASE/.agents/skills" ;;
+        antigravity)
+            # The CLI reads ~/.gemini/antigravity-cli/skills (user) and
+            # .agents/skills (workspace); the user-level .agents is not documented.
+            if [ -n "$PROJECT" ]; then add_target "$BASE/.agents/skills"
+            else add_target "$HOME/.gemini/antigravity-cli/skills"; fi ;;
         copilot)
             if [ -n "$PROJECT" ]; then add_target "$BASE/.github/skills"
             else add_target "$HOME/.copilot/skills"; fi ;;

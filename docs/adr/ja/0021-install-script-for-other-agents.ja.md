@@ -247,3 +247,9 @@ Verified-by: Claude Opus 5.5 (AI agent), 2026-10-23(上記の shellcheck と実�
   実行したのは `--agent` の経路だけ。
 - 実行したのは `dash` と、起動に使った `/bin/sh` だけ。macOS(BSD 版の
   `awk`/`cmp`)では実行していない。
+
+## 追記: Antigravity CLI
+
+この ADR の後に `--agent antigravity` を追加した。Antigravity CLI は Gemini CLI とは別製品で、公式ドキュメントではユーザースコープが `~/.gemini/antigravity-cli/skills/<name>/`(`~/.gemini/skills/` も読む)、プロジェクトが `<workspace>/.agents/skills/` とされている。そのため `install.sh` はユーザースコープでは前者に、`--project` では共通の `.agents/skills`(`add_target` で重複排除)に書く。
+
+ユーザースコープでは `~/.agents/skills` とは別ディレクトリなので、`codex` と `antigravity` を同時に選ぶと2部書く。Antigravity CLI が `~/.agents/skills` も読む場合は同じスキルが二重に見えるが、未確認(実機の Antigravity CLI は動かしていない)。
